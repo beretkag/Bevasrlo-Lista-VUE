@@ -32,6 +32,32 @@ client.connect(err => {
     console.log('Connected to MongoDB Database...');
     const database = client.db(process.env.DBNAME);
 
+    //Shopping List View
+    database.createView("ListView", "List", [
+        {
+            $lookup:
+            {
+                from:"Products",
+                localField: "ProductID",
+                foreignField: "_id",
+                as: "ProductProperties"
+            }
+        },
+        {
+            $project:
+            {
+                _id: 0,
+                quantity: 1,
+                name: "ProductProperties.name",
+                price: "ProductProperties.price",
+                unit: "ProductProperties.unit"
+            }
+        },
+        {
+            $unwind: "price"
+        }
+    ])
+
     // file upload
     app.post('/fileUpload', upload.single('file'), (req, res) => {
         log(req.socket.remoteAddress, `1 File uploaded to /Public/uploads (${req.file.filename}`);
