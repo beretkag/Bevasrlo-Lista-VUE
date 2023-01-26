@@ -33,7 +33,8 @@
               <thead>
                 <tr>
                   <th>Termék neve</th>
-                  <th class="text-end">Egységár</th>
+                  <th></th>
+                  <th class="text-end" style="width: 120px;">Egységár</th>
                   <th></th>
                   <th class="text-start">Egység</th>
                   <th>Törlés</th>
@@ -43,7 +44,19 @@
                 <tr 
                 v-for="product in products" :key="product._id">
                   <td>{{ product.name }}</td>
-                  <td class="text-end">{{ product.price }} Ft</td>
+                  <td class="text-end">
+                    <i class="bi bi-pencil btn" @click="editOn(product)" v-if="!product.edit"></i>
+                    <i class="bi bi-x-lg btn" v-else @click="editOff()"></i>
+                  </td>
+                  <td class="text-end" style="width: 120px;">
+                    <span v-if="!product.edit">
+                      {{ product.price }} Ft
+                    </span>
+                    <span v-else>
+                      <i class="bi bi-check-lg btn" @click="editPrice(product)"></i>
+                      <input type="text" style="width: 60px;" v-model="product.newPrice" class="text-end">
+                    </span>
+                  </td>
                   <td> / </td>
                   <td class="text-start">{{ product.unit }}</td>
                   <td><i class="bi bi-trash3 btn" @click="removeProduct(product._id)"></i></td>
@@ -63,6 +76,7 @@ import axios from "axios";
 export default {
   name: 'HomeView',
   components: {},
+
   data() {
     return{
       newProduct: {},
@@ -71,9 +85,18 @@ export default {
   },
   created() {
     axios.get("http://localhost:5000/Products")
-    .then((res) => (this.products = res.data))
+    .then(
+      (res) => res.data.forEach(item => {
+        item.edit = false;
+        item.newPrice = item.price;
+        this.products.push(item);
+      })
+    )
     .catch((err) => console.log(err));
+
+
   },
+
   methods: {
     addProduct() {
       if ( this.newProduct.name == null || this.newProduct.price == null )
@@ -89,6 +112,26 @@ export default {
           })
           .catch((err) => console.log(err));
       }
+    },
+
+    editPrice(product) {
+
+    },
+
+    editOn(product) {
+      this.setEditing(this.products);
+      product.edit = true;
+    },
+
+    editOff() {
+      this.setEditing(this.products);
+    },
+
+    setEditing(products) {
+      products.forEach(item => {
+        item.edit = false;
+        item.newPrice = item.price;
+      });
     },
 
     removeProduct(id) {
