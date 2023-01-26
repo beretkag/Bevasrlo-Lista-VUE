@@ -7,13 +7,12 @@
       <h3>Lista elem felvétele</h3>
       <div class="input-group mb-3">
         <span class="input-group-text">Termék:</span>
-
         <select class="form-select form-select-sm">
           <option selected>Válasszon...</option>
           <option value="1">One</option>
         </select>
         <span class="input-group-text">Mennyiség: </span>
-        <input type="text" class="form-control" placeholder="Mennyiség">
+        <input type="text" class="form-control" v-model="newItem.quantity">
         <span class="input-group-text"></span>
       </div>
       <button class="btn btn-success">
@@ -35,11 +34,11 @@ export default {
       items: []
     };
   },
-  /*created() {
-
+  created() {
+    this.newItem.quantity = 1;
   },
   methods: {
 
-  }*/
+  }
 }
 </script>
