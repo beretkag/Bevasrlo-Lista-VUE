@@ -30,33 +30,38 @@ const uri = `mongodb+srv://${process.env.DBUSER}:${process.env.DBPASS}@${process
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 client.connect(err => {
     console.log('Connected to MongoDB Database...');
-    const database = client.db(process.env.DBNAME);
+    var database = client.db(process.env.DBNAME);
+    //console.log(database);
 
-    //Shopping List View
-    database.createView("ListView", "List", [
-        {
-            $lookup:
-            {
-                from:"Products",
-                localField: "ProductID",
-                foreignField: "_id",
-                as: "ProductProperties"
-            }
-        },
-        {
-            $project:
-            {
-                _id: 0,
-                quantity: 1,
-                name: "ProductProperties.name",
-                price: "ProductProperties.price",
-                unit: "ProductProperties.unit"
-            }
-        },
-        {
-            $unwind: "price"
+    //Shopping List View Ez a xar nem működik!!!!!4444négy
+    database.createView('listview', 'List', [{
+        $lookup: {
+            from: "Products",
+            let: {"ListRefID" : "ProductID"},
+            pipeline: [
+                {
+                    $match: {
+                        $expr: { $eq: [ "_id",  "ListRefID" ] }
+                    }
+                },
+                {
+                    $project: {
+                        _id:0,
+                        name: 1,
+                        price: 1,
+                        unit: 1
+                    }
+                }
+            ],
+            as: "ProductProperties"
         }
-    ])
+    },
+    {
+        $project: {
+            _id: 0,
+            quantity: 1
+        }
+    }])
 
     // file upload
     app.post('/fileUpload', upload.single('file'), (req, res) => {
