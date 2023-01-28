@@ -31,37 +31,6 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 client.connect(err => {
     console.log('Connected to MongoDB Database...');
     var database = client.db(process.env.DBNAME);
-    //console.log(database);
-
-    //Shopping List View Ez a xar nem működik!!!!!4444négy
-    database.createView('listview', 'List', [{
-        $lookup: {
-            from: "Products",
-            let: {"ListRefID" : "ProductID"},
-            pipeline: [
-                {
-                    $match: {
-                        $expr: { $eq: [ "_id",  "ListRefID" ] }
-                    }
-                },
-                {
-                    $project: {
-                        _id:0,
-                        name: 1,
-                        price: 1,
-                        unit: 1
-                    }
-                }
-            ],
-            as: "ProductProperties"
-        }
-    },
-    {
-        $project: {
-            _id: 0,
-            quantity: 1
-        }
-    }])
 
     // file upload
     app.post('/fileUpload', upload.single('file'), (req, res) => {

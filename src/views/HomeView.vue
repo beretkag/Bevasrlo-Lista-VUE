@@ -21,11 +21,11 @@
 
       <hr>
 
-      <div class="accordion accordion-flush" id="accordionFlushExample">
+      <div class="accordion accordion-flush" id="accordionFlushExample" v-if="summary > 0">
         <div class="accordion-item">
           <h2 class="accordion-header" id="flush-headingOne">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-              <h4>Termékek</h4>
+              <h4>Termékek ({{ summary }})</h4>
             </button>
           </h2>
           <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
@@ -42,11 +42,11 @@
               </thead>
               <tbody>
                 <tr 
-                v-for="product in products" :key="product._id">
+                v-for="product in products" :key="product._id" class="align-middle">
                   <td>{{ product.name }}</td>
                   <td class="text-end">
-                    <i class="bi bi-pencil btn" @click="editOn(product)" v-if="!product.edit"></i>
-                    <i class="bi bi-x-lg btn" v-else @click="editOff()"></i>
+                    <i class="bi bi-pencil btn" @click="editing(product)" v-if="!product.edit"></i>
+                    <i class="bi bi-x-lg btn" v-else @click="editing()"></i>
                   </td>
                   <td class="text-end" style="width: 120px;">
                     <span v-if="!product.edit">
@@ -66,6 +66,9 @@
           </div>
         </div>
       </div>
+      <h3 v-else>
+        Még nincs rögzített terméke
+      </h3>
     </div>
   </div>
 </template>
@@ -93,8 +96,12 @@ export default {
       })
     )
     .catch((err) => console.log(err));
+  },
 
-
+  computed: {
+    summary() {
+      return this.products.length;  
+    }
   },
 
   methods: {
@@ -115,16 +122,31 @@ export default {
     },
 
     editPrice(product) {
-
+      axios({
+        method: 'patch',
+        url: "http://localhost:5000/Products/" + product._id,
+        headers:{
+            'content-type': 'application/json'
+        },
+        data: {
+          name : product.name,
+          price : product.newPrice,
+          unit : product.unit
+      }
+      })
+      .then( () =>{
+        product.price = product.newPrice;
+        product.edit = false;
+      }
+      )
+      .catch((err) => console.log(err));
     },
 
-    editOn(product) {
+    editing(product) {
       this.setEditing(this.products);
-      product.edit = true;
-    },
-
-    editOff() {
-      this.setEditing(this.products);
+      //alert(product.edit);
+      product.edit = !product.edit;
+      //alert(product.edit);
     },
 
     setEditing(products) {
@@ -137,8 +159,7 @@ export default {
     removeProduct(id) {
       axios
           .delete("http://localhost:5000/Products/" + id)
-          .then((res) => {
-            console.log(res);
+          .then(() => {
             let idx = this.products.findIndex((product) => product._id == id);
             this.products.splice(idx, 1);
           })
