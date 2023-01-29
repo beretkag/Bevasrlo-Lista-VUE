@@ -157,6 +157,21 @@ export default {
     },
 
     removeProduct(id) {
+
+    /* Ez lenne a valódi
+          axios
+          .delete("http://localhost:5000/List/productID/" + id)
+          .then(() => {
+            axios
+                .delete("http://localhost:5000/Products/" + id)
+                .then(() => {
+                  let idx = this.products.findIndex((product) => product._id == id);
+                  this.products.splice(idx, 1);
+                })
+                .catch((err) => console.log(err));
+          })
+          .catch((err) => console.log(err)); 
+    */
       axios
           .delete("http://localhost:5000/Products/" + id)
           .then(() => {

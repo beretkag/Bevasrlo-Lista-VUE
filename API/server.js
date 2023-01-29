@@ -183,6 +183,9 @@ client.connect(err => {
         var table = req.params.table;
         var field = req.params.field;
         var value = req.params.value;
+
+        console.log(`${field}: ${value}`);
+
         let collection = database.collection(table);
         let felt = `{
                 "${field}":"${value}"
